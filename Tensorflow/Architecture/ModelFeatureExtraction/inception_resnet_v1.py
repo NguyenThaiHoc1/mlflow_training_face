@@ -11,7 +11,6 @@ from tensorflow.keras.layers import BatchNormalization, Activation
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Concatenate, add, Lambda, GlobalAveragePooling2D, Dropout
 from tensorflow.keras.layers import Dense, Input, Layer, GlobalMaxPooling2D, Reshape
 
-from Settings import config
 from Tensorflow.Architecture.ArcHead.header import ArcHead
 from Tensorflow.Architecture.utlis import utlis
 
@@ -460,24 +459,3 @@ class InceptionResNetV1(Model):
             out = self.fc(out)
 
         return out
-
-
-if __name__ == '__main__':
-    tf.keras.backend.clear_session()
-    model = InceptionResNetV1(num_classes=config.NUM_CLASSES,
-                              embedding_size=config.EMBEDDING_SIZE,
-                              model_type='ArcHead',
-                              name="InceptionResNetV1")
-    model.build(input_shape=(None, 250, 250, 3))
-    model.summary()
-
-    # demo get layer
-    # layer = utlis.get_layer_byname(model,
-    #                                name='Block35/Block35_1/inception_resnet_block35/sequence_block35_1/Conv2d_1x1')
-
-    # Test Output of Model
-    x = Input(shape=(160, 160, 3))
-    y = Input(shape=(1))
-    out = model([x, y], training=True)
-    print(out)
-    print("DONE ...")

@@ -16,14 +16,16 @@ def set_env_vars():
 
 
 def train(run, model_name, mlflow_custom_log, **kwargs):
+    args = parser_args()
+
     # get parameter
-    path_file_tfrecords = kwargs['file']
-    num_classes = kwargs['num_classes']
-    num_images = kwargs['num_images']
-    batch_size = kwargs['batch_size']
-    embedding_size = kwargs['embedding_size']
-    model_type = kwargs['model_type']
-    learning_rate = kwargs['lr']
+    path_file_tfrecords = args.file
+    num_classes = args.num_classes
+    num_images = args.num_images
+    batch_size = args.batch_size
+    embedding_size = args.embedding_size
+    model_type = args.model_type
+    learning_rate = args.lr
 
     # get data
     dataloader_train = TFRecordData.load(record_name=path_file_tfrecords,
@@ -47,8 +49,6 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
     model.compile(loss=CosfaceLoss(margin=0.5, scale=64, n_classes=num_classes),
                   optimizer=optimizer)
 
-    model.summary()
-
     # model fit
     model.fit(
         dataloader_train,
@@ -65,6 +65,11 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
             f.write(summary)
         mlflow.log_artifact("model_summary.txt", artifact_path='model_summary')
         mlflow.tensorflow.autolog(model, "tf-model")
+
+    # write model as json file
+    with open("model.json", "w") as f:
+        f.write(model.to_json())
+    mlflow.log_artifact("model.json", artifact_path='model_summary')
 
 
 # optional for mlflow
@@ -93,8 +98,6 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
               help="Registered model name",
               default='InceptionResNetV1', type=str)
 def main(experiment_name, model_name, mlflow_autolog, tensorflow_autolog, mlflow_custom_log, user):
-    args = parser_args()
-
     print("Options:")
     for k, v in locals().items():
         print(f"  {k}: {v}")
@@ -122,9 +125,9 @@ def main(experiment_name, model_name, mlflow_autolog, tensorflow_autolog, mlflow
         mlflow.set_tag("mlflow_autolog", mlflow_autolog)
         mlflow.set_tag("tensorflow_autolog", tensorflow_autolog)
         mlflow.set_tag("mlflow_custom_log", mlflow_custom_log)
-        mlflow.set_tag("Type of model: ", model_name)
-        mlflow.set_tag("Developer: ", user)
-        train(run, model_name, mlflow_custom_log, **args)
+        mlflow.set_tag("Type of model", model_name)
+        mlflow.set_tag("Developer", user)
+        train(run, model_name, mlflow_custom_log)
 
 
 if __name__ == '__main__':
