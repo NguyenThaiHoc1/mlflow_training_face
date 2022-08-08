@@ -52,6 +52,7 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
     # model fit
     model.fit(
         dataloader_train,
+        validation_split=0.2,
         steps_per_epoch=num_images // batch_size,
         epochs=10,
     )
