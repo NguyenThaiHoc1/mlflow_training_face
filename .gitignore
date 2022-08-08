@@ -1,4 +1,7 @@
+.idea
 Dataset
 Settings
 
 01_main_eager_tensor.py
+99_get_infomation_data.py
+lab.py
