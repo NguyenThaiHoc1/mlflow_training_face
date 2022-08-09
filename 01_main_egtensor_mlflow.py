@@ -89,7 +89,8 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
 
     # compile model
     model.compile(loss=CosfaceLoss(margin=0.5, scale=64, n_classes=num_classes),
-                  optimizer=Adam(learning_rate=learning_rate))
+                  optimizer=Adam(learning_rate=learning_rate),
+                  metrics=['accuracy'])
 
     callbacks = list_callbacks(sub_name='inception_resv1', save_steps=1000, batch_size=batch_size)
     # model fit
