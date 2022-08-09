@@ -28,36 +28,6 @@ def list_callbacks(sub_name, save_steps, batch_size):
     return [mc_callback, tb_callback]
 
 
-def get_dataset_partitions_tf(ds, ds_size,
-                              train_split=0.8,
-                              val_split=0.1,
-                              test_split=0.1,
-                              shuffle=True,
-                              shuffle_size=10000):
-    """
-    https://gist.github.com/angeligareta/e3332c7a955dba8eaca71bf388d028c2
-    :param ds:
-    :param ds_size:
-    :param train_split:
-    :param val_split:
-    :param test_split:
-    :param shuffle:
-    :param shuffle_size:
-    :return:
-    """
-    assert (train_split + test_split + val_split) == 1
-
-    train_size = int(train_split * ds_size)
-    val_size = int(val_split * ds_size)
-
-    train_ds = ds.take(train_size)
-    val_ds = ds.skip(train_size).take(val_size)
-
-    train_ds = train_ds.shuffle(2048, seed=43)
-    train_ds = train_ds.repeat()
-    return (train_ds, train_size), (val_ds, val_size)
-
-
 def train(run, model_name, mlflow_custom_log, **kwargs):
     args = parser_args()
 
