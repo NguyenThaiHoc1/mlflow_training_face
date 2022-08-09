@@ -6,6 +6,8 @@ from utlis.argparser import parser_args
 from Tensorflow.TFRecord.tfrecord import TFRecordData
 from Tensorflow.Architecture.ModelFeatureExtraction.inception_resnet_v1 import InceptionResNetV1
 from LossFunction.losses import CosfaceLoss
+from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
+from tensorflow.keras.optimizers import Adam
 
 
 # def set_env_vars():
@@ -13,6 +15,18 @@ from LossFunction.losses import CosfaceLoss
 #     os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://34.127.32.14:9000"
 #     os.environ["AWS_ACCESS_KEY_ID"] = "admin"
 #     os.environ["AWS_SECRET_ACCESS_KEY"] = "hocmap123"
+
+def list_callbacks(sub_name, save_steps, batch_size):
+    mc_callback = ModelCheckpoint(
+        'checkpoints/' + str(sub_name) + '/e_{epoch}_b_{batch}.ckpt',
+        save_freq=save_steps * batch_size, verbose=1,
+        save_weights_only=True)
+    tb_callback = TensorBoard(log_dir='logs/',
+                              update_freq=batch_size * 5,
+                              profile_batch=0)
+
+    return [mc_callback, tb_callback]
+
 
 def get_dataset_partitions_tf(ds, ds_size,
                               train_split=0.8,
@@ -59,16 +73,13 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
     # get data
     dataloader_train = TFRecordData.load(record_name=path_file_tfrecords,
                                          shuffle=True,
-                                         batch_size=32,
-                                         is_repeat=False,
+                                         batch_size=batch_size,
+                                         is_repeat=True,
                                          binary_img=True,
                                          is_crop=True,
                                          reprocess=False,
                                          num_classes=num_classes,
-                                         buffer_size=10240)
-
-    (train_ds, steps_per_epoch), (val_ds, validation_steps) = get_dataset_partitions_tf(dataloader_train,
-                                                                                               ds_size=num_images // batch_size)
+                                         buffer_size=2048)
 
     # build model
     model = InceptionResNetV1(num_classes=num_classes,
@@ -77,18 +88,16 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
                               name="InceptionResNetV1")
 
     # compile model
-    optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate,
-                                        momentum=0.9, nesterov=True)
     model.compile(loss=CosfaceLoss(margin=0.5, scale=64, n_classes=num_classes),
-                  optimizer=optimizer)
+                  optimizer=Adam(learning_rate=learning_rate))
 
+    callbacks = list_callbacks(sub_name='inception_resv1', save_steps=1000, batch_size=batch_size)
     # model fit
     model.fit(
-        train_ds,
-        validation_data=val_ds,
-        steps_per_epoch=steps_per_epoch,
-        validation_steps=validation_steps,
+        dataloader_train,
+        steps_per_epoch=num_images // batch_size,
         epochs=10,
+        callbacks=callbacks
     )
 
     if mlflow_custom_log:
