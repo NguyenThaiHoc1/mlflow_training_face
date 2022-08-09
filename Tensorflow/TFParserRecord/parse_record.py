@@ -42,7 +42,8 @@ class ParserRecord(object):
         """
             We can build reprocess labels in here 
         """
-        labels = tf.one_hot(labels, depth=self.num_classes)
+        if self.num_classes is not None:
+            labels = tf.one_hot(labels, depth=self.num_classes)
 
         if self.reprocess:
             image_path = tf.cast(features_record['image/img_path'], tf.string)

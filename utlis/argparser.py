@@ -4,7 +4,7 @@ import argparse
 def parser_args():
     arg_parser = argparse.ArgumentParser(description="Show image raw")
     arg_parser.add_argument('--file',
-                            default=r'E:\Data\data_tfrecords\VGGFace2_mask.tfrecords',
+                            default=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw_new_mask.tfrecords',
                             type=str,
                             required=False,
                             help='This is link which thought to tfreocrds file')

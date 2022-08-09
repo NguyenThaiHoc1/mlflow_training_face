@@ -8,11 +8,40 @@ from Tensorflow.Architecture.ModelFeatureExtraction.inception_resnet_v1 import I
 from LossFunction.losses import CosfaceLoss
 
 
-def set_env_vars():
-    os.environ["MLFLOW_TRACKING_URI"] = "http://34.127.32.14:5000"
-    os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://34.127.32.14:9000"
-    os.environ["AWS_ACCESS_KEY_ID"] = "admin"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "hocmap123"
+# def set_env_vars():
+#     os.environ["MLFLOW_TRACKING_URI"] = "http://34.127.32.14:5000"
+#     os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://34.127.32.14:9000"
+#     os.environ["AWS_ACCESS_KEY_ID"] = "admin"
+#     os.environ["AWS_SECRET_ACCESS_KEY"] = "hocmap123"
+
+def get_dataset_partitions_tf(ds, ds_size,
+                              train_split=0.8,
+                              val_split=0.1,
+                              test_split=0.1,
+                              shuffle=True,
+                              shuffle_size=10000):
+    """
+    https://gist.github.com/angeligareta/e3332c7a955dba8eaca71bf388d028c2
+    :param ds:
+    :param ds_size:
+    :param train_split:
+    :param val_split:
+    :param test_split:
+    :param shuffle:
+    :param shuffle_size:
+    :return:
+    """
+    assert (train_split + test_split + val_split) == 1
+
+    train_size = int(train_split * ds_size)
+    val_size = int(val_split * ds_size)
+
+    train_ds = ds.take(train_size)
+    val_ds = ds.skip(train_size).take(val_size)
+
+    train_ds = train_ds.shuffle(2048, seed=43)
+    train_ds = train_ds.repeat()
+    return (train_ds, train_size), (val_ds, val_size)
 
 
 def train(run, model_name, mlflow_custom_log, **kwargs):
@@ -31,12 +60,16 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
     dataloader_train = TFRecordData.load(record_name=path_file_tfrecords,
                                          shuffle=True,
                                          batch_size=32,
-                                         is_repeat=True,
+                                         is_repeat=False,
                                          binary_img=True,
                                          is_crop=True,
                                          reprocess=False,
                                          num_classes=num_classes,
                                          buffer_size=10240)
+
+    (train_ds, steps_per_epoch), (val_ds, validation_steps) = get_dataset_partitions_tf(dataloader_train,
+                                                                                               ds_size=num_images // batch_size)
+
     # build model
     model = InceptionResNetV1(num_classes=num_classes,
                               embedding_size=embedding_size,
@@ -51,9 +84,10 @@ def train(run, model_name, mlflow_custom_log, **kwargs):
 
     # model fit
     model.fit(
-        dataloader_train,
-        validation_split=0.2,
-        steps_per_epoch=num_images // batch_size,
+        train_ds,
+        validation_data=val_ds,
+        steps_per_epoch=steps_per_epoch,
+        validation_steps=validation_steps,
         epochs=10,
     )
 
@@ -132,5 +166,5 @@ def main(experiment_name, model_name, mlflow_autolog, tensorflow_autolog, mlflow
 
 
 if __name__ == '__main__':
-    set_env_vars()
+    # set_env_vars()
     main()

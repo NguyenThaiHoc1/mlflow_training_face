@@ -91,7 +91,7 @@ class TFRecordData(object):
                 num_parallel_calls=tf.data.experimental.AUTOTUNE
             )
 
-        dataset = dataset.batch(batch_size)
+        dataset = dataset.batch(batch_size, drop_remainder=True)
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
         logging.info(f"Loading TFRecord done.")
         return dataset
