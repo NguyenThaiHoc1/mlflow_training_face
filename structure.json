@@ -1,0 +1,40 @@
+{
+  "structure_projects": {
+    "01_train": {
+      "Hyper-Parameters & Args-Parameter": {
+        "path_file_dataset": "nó là path file of tfrecords",
+        "num_classes": 10,
+        "num_images": 100,
+        "batch_size": 12,
+        "epochs": 30
+      },
+      "Model architecture": {
+        "backbone-model": [
+          "có nhiều sự lựa chọn mô hình backbone"
+        ],
+        "loading-weight || loading-checkpoint": "đưa đường dẫn loading file and checkpoints"
+      },
+      "Data loader": {
+        "Hyper-Paramters": {
+          "shuffle": true,
+          "repeat": false,
+          "orders": true,
+          "augmentation": {
+            "....": "Cần cập nhật nội dung"
+          }
+        }
+      },
+      "Call Supervisors": {
+      }
+    },
+    "02_train supervisors": {
+      "all features": {
+        "__init__": "Khởi tạo",
+        "restore": "loading checkpoint from traning previous",
+        "train": "gọi nếu muốn training",
+        "export": "saving model",
+        "override": "thiết lập lại các chỉ số training cần thiết"
+      }
+    }
+  }
+}
