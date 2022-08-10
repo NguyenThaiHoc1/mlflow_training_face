@@ -101,13 +101,11 @@ def ArcfaceLoss(margin, scale, n_classes):
 
         cos_mt = tf.where(cos_t > th, cos_mt, cos_t - mm)
 
-        mask = tf.one_hot(tf.cast(y_true, tf.int32), depth=n_classes, name='one_hot_mask')
+        mask = tf.cast(y_true, tf.int32, name='one_hot_mask')
 
         logists = tf.where(mask == 1., cos_mt, cos_t)
 
         logists = tf.multiply(logists, scale, 'arcface_logist')
-
-        # y_true = tf.cast(tf.reshape(y_true, [-1]), tf.int32)
 
         ce = tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=logists)
 

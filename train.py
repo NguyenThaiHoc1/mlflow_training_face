@@ -7,7 +7,6 @@ import tensorflow as tf
 import argparse
 from Network.model import MyModel
 from Network.head.archead import ArcHead
-from Network.backbone.architecture_backbones import backbone_model
 from Tensorflow.TFRecord.tfrecord import TFRecordData
 from training_supervisor import TrainingSupervisor
 from LossFunction.losses import ArcfaceLoss
@@ -67,9 +66,10 @@ def run(**kwargs):
 
     # chosing model
     type_backbone = 'Resnet_tf'
-    backbone = backbone_model(type_model=type_backbone, embedding_size=embedding_size)
     archead = ArcHead(num_classes=num_classes)
-    model = MyModel(backbone=backbone, header=archead)
+    model = MyModel(type_backbone='Resnet_tf',
+                    input_shape=input_shape,
+                    header=archead)
     model.build(input_shape=(None, input_shape, input_shape, 3))
     optimizer = tf.keras.optimizers.Adam(0.001, amsgrad=True, epsilon=0.001)
     model.summary()
