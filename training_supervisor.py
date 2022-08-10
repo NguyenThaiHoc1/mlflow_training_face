@@ -22,6 +22,7 @@ class TrainingSupervisor(object):
         self.save_freq = save_freq
 
         self.train_dataloader = train_dataloader
+        self.datatrain_generator = iter(self.train_dataloader)
         self.validate_dataloader = validation_dataloader
 
         # Setup metrics
@@ -45,7 +46,7 @@ class TrainingSupervisor(object):
             metrics=self.metrics,
             schedule=self.schedule,
             monitor=self.monitor,
-            dataset=iter(self.train_dataloader)
+            dataset=self.datatrain_generator
         )
         self.manager = tf.train.CheckpointManager(
             self.checkpoint,
@@ -150,14 +151,13 @@ class TrainingSupervisor(object):
         print("Resume training from global step: {}, epoch: {}".format(global_step, initial_epoch))
         print("Current step is: {}".format(initial_step))
 
-        dataset_iter = iter(self.train_dataloader)
         for epoch in range(initial_epoch, epochs + 1):
             print(f"\nEpoch {epoch}/{epochs}")
 
             progress_bar = tqdm(total=steps_per_epoch, initial=initial_step,
                                 ascii="->", colour='#1cd41c')
 
-            for data, labels in dataset_iter:
+            for data, labels in self.datatrain_generator:
                 logits, loss = self._train_step(x_batch=data, y_batch=labels)
 
                 # update metrics
@@ -186,7 +186,7 @@ class TrainingSupervisor(object):
             self.schedule['epoch'].assign_add(1)
 
             # reset iterate
-            dataset_iter = iter(self.train_dataloader)
+            self.datatrain_generator = iter(self.train_dataloader)
 
             # clean up process bar
             progress_bar.close()
