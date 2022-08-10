@@ -107,9 +107,9 @@ def ArcfaceLoss(margin, scale, n_classes):
 
         logists = tf.multiply(logists, scale, 'arcface_logist')
 
-        y_true = tf.cast(tf.reshape(y_true, [-1]), tf.int32)
+        # y_true = tf.cast(tf.reshape(y_true, [-1]), tf.int32)
 
-        ce = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y_true, logits=logists)
+        ce = tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=logists)
 
         return tf.reduce_mean(ce)
 
