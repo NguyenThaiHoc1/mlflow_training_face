@@ -46,7 +46,6 @@ class TrainingSupervisor(object):
             metrics=self.metrics,
             schedule=self.schedule,
             monitor=self.monitor,
-            dataset=self.datatrain_generator
         )
         self.manager = tf.train.CheckpointManager(
             self.checkpoint,
@@ -169,7 +168,7 @@ class TrainingSupervisor(object):
                 # update process bar
                 progress_bar.update(1)
                 progress_bar.set_postfix({
-                    "loss": "{:.4f}".format(loss.numpy()),
+                    "loss": "{:.4f}".format(loss.numpy()[0]),
                     "accuracy": "{:.4f}".format(self.metrics['categorical_accuracy'].result().numpy())
                 })
 
