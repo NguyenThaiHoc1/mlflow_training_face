@@ -39,8 +39,17 @@ class TrainingSupervisor(object):
             'monitor_value': tf.Variable(0, trainable=False, dtype=tf.float32)
         }
 
-        # checkpoint
-        self.checkpoint = tf.train.Checkpoint(
+        # checkpoint-scout
+        self.checkpoint_scout = tf.train.Checkpoint(
+            model=self.model,
+            optimizer=self.optimizer,
+            metrics=self.metrics,
+            schedule=self.schedule,
+            monitor=self.monitor,
+        )
+
+        # checkpoint-manager
+        self.checkpoint_manager = tf.train.Checkpoint(
             model=self.model,
             optimizer=self.optimizer,
             metrics=self.metrics,
@@ -51,15 +60,15 @@ class TrainingSupervisor(object):
         # A model manager is responsible for saving the current training
         # schedule and the model weights.
         self.manager = tf.train.CheckpointManager(
-            self.checkpoint,
+            self.checkpoint_manager,
             os.path.join(training_dir, "checkpoints", name),
-            max_to_keep=2
+            max_to_keep=5
         )
 
         # A model scout watches and saves the best model according to the
         # monitor value.
         self.scout = tf.train.CheckpointManager(
-            self.checkpoint,
+            self.checkpoint_scout,
             os.path.join(training_dir, 'model_scout', name),
             max_to_keep=1
         )
@@ -150,6 +159,7 @@ class TrainingSupervisor(object):
             print("Monitor value not improved: {:.4f}, latest: {:.4f}.".format(previous, current))
 
         ckpt_path = self.manager.save()
+        self._reset_metrics()
         print(f"Checkpoint saved at global step {self.schedule['step']}, to file: {ckpt_path}")
 
     def restore(self, weights_only=False, from_scout=False):
@@ -196,7 +206,9 @@ class TrainingSupervisor(object):
             progress_bar = tqdm(total=steps_per_epoch, initial=initial_step,
                                 ascii="->", colour='#1cd41c')
 
-            for data, labels in self.datatrain_generator:
+            for index in range(initial_step, steps_per_epoch):
+                data, labels = next(self.datatrain_generator)
+
                 logits, loss = self._train_step(x_batch=data, y_batch=labels)
 
                 # update metrics
@@ -223,7 +235,6 @@ class TrainingSupervisor(object):
             # Save the last checkpoint.
             self._log_to_tensorboard()
             self._checkpoint()
-            self._reset_metrics()
 
             # update epoch
             self.schedule['epoch'].assign_add(1)
