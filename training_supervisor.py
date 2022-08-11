@@ -189,7 +189,8 @@ class TrainingSupervisor(object):
             checkpoint = tf.train.Checkpoint(model=self.model)
             checkpoint.restore(checkpoint).expect_partial()  # hidden warning
         else:
-            self.checkpoint.restore(latest_checkpoint)
+            self.checkpoint_scout.restore(latest_checkpoint)
+            self.checkpoint_manager.restore(latest_checkpoint)
 
         print("Checkpoint restored: {}".format(latest_checkpoint))
 
