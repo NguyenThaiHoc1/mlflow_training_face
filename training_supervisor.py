@@ -247,8 +247,10 @@ class TrainingSupervisor(object):
             progress_bar.close()
             initial_step = 0
 
-    def export(self):
-        raise NotImplementedError
+    def export(self, model, export_dir):
+        print("Saving model to {} ...".format(export_dir))
+        model.save(export_dir)
+        print("Model saved at: {}".format(export_dir))
 
     def override(self):
         raise NotImplementedError

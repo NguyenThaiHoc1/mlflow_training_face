@@ -46,6 +46,10 @@ def parser():
                             type=str,
                             help="The checkpoint training dir",
                             default=r"./Tensorboard")
+    args_parse.add_argument("--export_dir", required=False,
+                            type=str,
+                            help="Folder which contains base dir",
+                            default=r'./Model')
     return args_parse.parse_args()
 
 
@@ -63,6 +67,7 @@ def run(**kwargs):
     epochs = kwargs['epochs']
     input_shape = kwargs['input_shape']
     training_dir = kwargs['training_dir']
+    export_dir = kwargs['export_dir']
 
     # chosing model
     type_backbone = 'Resnet_tf'
@@ -101,6 +106,7 @@ def run(**kwargs):
 
     supervisor.restore(weights_only=False, from_scout=True)
     supervisor.train(epochs=epochs, steps_per_epoch=num_images // batch_size)
+    supervisor.export(model=model.backbone, export_dir=export_dir)
 
 
 if __name__ == '__main__':
@@ -112,4 +118,5 @@ if __name__ == '__main__':
         batch_size=args.batch_size,
         epochs=args.epochs,
         input_shape=args.input_shape,
-        training_dir=args.training_dir)
+        training_dir=args.training_dir,
+        export_dir=args.export_dir)
