@@ -9,7 +9,7 @@ from Network.model import MyModel
 from Network.head.archead import ArcHead
 from Tensorflow.TFRecord.tfrecord import TFRecordData
 from training_supervisor import TrainingSupervisor
-from LossFunction.losses import ArcfaceLoss
+from LossFunction.losses import CosfaceLoss
 
 
 def parser():
@@ -75,7 +75,7 @@ def run(**kwargs):
     model.summary()
 
     # init loss function
-    loss_fn = ArcfaceLoss(margin=0.5, scale=64, n_classes=num_classes)
+    loss_fn = CosfaceLoss(margin=0.5, scale=64, n_classes=num_classes)
 
     # dataloader
     dataloader_train = TFRecordData.load(record_name=tfrecord_file,

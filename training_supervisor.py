@@ -94,6 +94,19 @@ class TrainingSupervisor(object):
         for key, metric in self.metrics.items():
             metric.reset_states()
 
+    def _log_to_tensorboard_epoch(self):
+        epoch = int(self.schedule['epoch'])
+        epoch_train_loss = self.metrics['loss'].result()
+        epoch_train_accuracy = self.metrics['categorical_accuracy'].result()
+
+        with self.clerk.as_default():
+            tf.summary.scalar("epoch_loss", epoch_train_loss, step=epoch)
+            tf.summary.scalar("epoch_accuracy", epoch_train_accuracy, step=epoch)
+
+        # Log to STDOUT.
+        print("\nTraining accuracy: {:.4f}, mean loss: {:.4f}".format(float(epoch_train_accuracy),
+                                                                      float(epoch_train_loss)))
+
     def _log_to_tensorboard(self):
         current_step = int(self.schedule['step'])
         train_loss = self.metrics['loss'].result()
@@ -104,9 +117,6 @@ class TrainingSupervisor(object):
             tf.summary.scalar("loss", train_loss, step=current_step)
             tf.summary.scalar("accuracy", train_accuracy, step=current_step)
             tf.summary.scalar("learning rate", lr, step=current_step)
-
-        # Log to STDOUT.
-        print("Training accuracy: {:.4f}, mean loss: {:.2f}".format(float(train_accuracy), float(train_loss)))
 
     def _checkpoint(self):
         def _check_value(v1, v2, mode):
@@ -176,6 +186,9 @@ class TrainingSupervisor(object):
                 if int(self.schedule['step']) % self.save_freq == 0:
                     self._log_to_tensorboard()
                     self._checkpoint()
+
+            # Overview metrics epochs
+            self._log_to_tensorboard_epoch()
 
             # Save the last checkpoint.
             self._log_to_tensorboard()
