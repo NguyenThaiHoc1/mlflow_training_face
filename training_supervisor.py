@@ -47,10 +47,13 @@ class TrainingSupervisor(object):
             schedule=self.schedule,
             monitor=self.monitor,
         )
+
+        # A model manager is responsible for saving the current training
+        # schedule and the model weights.
         self.manager = tf.train.CheckpointManager(
             self.checkpoint,
             os.path.join(training_dir, "checkpoints", name),
-            max_to_keep=1
+            max_to_keep=2
         )
 
         # A model scout watches and saves the best model according to the
@@ -146,12 +149,39 @@ class TrainingSupervisor(object):
         else:
             print("Monitor value not improved: {:.4f}, latest: {:.4f}.".format(previous, current))
 
-        self._reset_metrics()
         ckpt_path = self.manager.save()
         print(f"Checkpoint saved at global step {self.schedule['step']}, to file: {ckpt_path}")
 
-    def restore(self):
-        raise NotImplementedError
+    def restore(self, weights_only=False, from_scout=False):
+        """
+        Restore training process from previous training checkpoint.
+
+        Args:
+            weights_only: only restore the model weights. Default is False.
+            from_scout: restore from the checkpoint saved by model scout.
+        """
+        if from_scout:
+            # scout duoc dung de luu best model
+            latest_checkpoint = self.scout.latest_checkpoint
+        else:
+            # manager duoc dung de luu qua trình training
+            latest_checkpoint = self.manager.latest_checkpoint
+
+        if latest_checkpoint is not None:
+            print(f"Checkpoint found: {latest_checkpoint}")
+        else:
+            print(f"WARNING: Checkpoint not found. Model will be initialized from  scratch.")
+
+        print("Restoring ...")
+
+        if weights_only:
+            print("Only the model weights will be restored.")
+            checkpoint = tf.train.Checkpoint(self.model)
+            checkpoint.restore(checkpoint)
+        else:
+            self.checkpoint.restore(latest_checkpoint)
+
+        print("Checkpoint restored: {}".format(latest_checkpoint))
 
     def train(self, epochs, steps_per_epoch):
         initial_epoch = self.schedule['epoch'].numpy()
@@ -193,6 +223,7 @@ class TrainingSupervisor(object):
             # Save the last checkpoint.
             self._log_to_tensorboard()
             self._checkpoint()
+            self._reset_metrics()
 
             # update epoch
             self.schedule['epoch'].assign_add(1)

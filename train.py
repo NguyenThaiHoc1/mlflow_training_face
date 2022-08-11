@@ -99,6 +99,7 @@ def run(**kwargs):
                                     training_dir=training_dir,
                                     name='Trainer_Supervisor')
 
+    supervisor.restore(weights_only=False, from_scout=True)
     supervisor.train(epochs=epochs, steps_per_epoch=num_images // batch_size)
 
 
