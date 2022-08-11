@@ -186,8 +186,8 @@ class TrainingSupervisor(object):
 
         if weights_only:
             print("Only the model weights will be restored.")
-            checkpoint = tf.train.Checkpoint(self.model)
-            checkpoint.restore(checkpoint)
+            checkpoint = tf.train.Checkpoint(model=self.model)
+            checkpoint.restore(checkpoint).expect_partial()  # hidden warning
         else:
             self.checkpoint.restore(latest_checkpoint)
 
@@ -244,6 +244,7 @@ class TrainingSupervisor(object):
 
             # clean up process bar
             progress_bar.close()
+            initial_step = 0
 
     def export(self):
         raise NotImplementedError
