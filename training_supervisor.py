@@ -77,6 +77,7 @@ class TrainingSupervisor(object):
         dt_string = datetime.now().strftime("%d%m%Y_%H_%M_%S")
         self.clerk = tf.summary.create_file_writer(os.path.join(training_dir, 'logs', name, dt_string))
 
+    @tf.function
     def _train_step(self, x_batch, y_batch):
         with tf.GradientTape() as tape:
             logits = self.model(x_batch, training=True)
@@ -88,6 +89,7 @@ class TrainingSupervisor(object):
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_weights))
         return logits, total_loss
 
+    @tf.function
     def _update_metrics(self, **kwargs):
         """
 
@@ -252,5 +254,5 @@ class TrainingSupervisor(object):
         model.save(export_dir)
         print("Model saved at: {}".format(export_dir))
 
-    def override(self):
+    def override_schedule(self):
         raise NotImplementedError
