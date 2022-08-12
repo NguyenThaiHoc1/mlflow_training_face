@@ -10,6 +10,7 @@ from Network.head.archead import ArcHead
 from Tensorflow.TFRecord.tfrecord import TFRecordData
 from training_supervisor import TrainingSupervisor
 from LossFunction.losses import CosfaceLoss
+from evalute import EvaluteObjects
 
 
 def parser():
@@ -18,6 +19,14 @@ def parser():
                             type=str,
                             help="file dataset",
                             default=r"D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw.tfrecords")
+    args_parse.add_argument("--tfrecord_file_eval", required=False,
+                            type=str,
+                            help="file dataset which using for eval",
+                            default=r"D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw.tfrecords")
+    args_parse.add_argument("--file_pair_eval", required=False,
+                            type=str,
+                            help="file pair eval",
+                            default=r"D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw.txt")
     args_parse.add_argument("--num_classes", required=False,
                             type=int,
                             help="the number of classes of dataset",
@@ -60,6 +69,8 @@ def run(**kwargs):
 
     # get hyper-parameter
     tfrecord_file = kwargs['tfrecord_file']
+    tfrecord_file_eval = kwargs['tfrecord_file_eval']
+    file_pair_eval = kwargs['file_pair_eval']
     num_classes = kwargs['num_classes']
     num_images = kwargs['num_images']
     embedding_size = kwargs['embedding_size']
@@ -74,6 +85,7 @@ def run(**kwargs):
     archead = ArcHead(num_classes=num_classes)
     model = MyModel(type_backbone='Resnet_tf',
                     input_shape=input_shape,
+                    embedding_size=embedding_size,
                     header=archead)
     model.build(input_shape=(None, input_shape, input_shape, 3))
     optimizer = tf.keras.optimizers.Adam(0.001, amsgrad=True, epsilon=0.001)
@@ -108,10 +120,18 @@ def run(**kwargs):
     supervisor.train(epochs=epochs, steps_per_epoch=num_images // batch_size)
     supervisor.export(model=model.backbone, export_dir=export_dir)
 
+    # evaluate ...
+    eval_class = EvaluteObjects(tfrecord_file=tfrecord_file_eval,
+                                file_pairs=file_pair_eval,
+                                batch_size=batch_size)
+    eval_class.activate(model=model.backbone, embedding_size=embedding_size)
+
 
 if __name__ == '__main__':
     args = parser()
     run(tfrecord_file=args.tfrecord_file,
+        tfrecord_file_eval=args.tfrecord_file_eval,
+        file_pair_eval=args.file_pair_eval,
         num_classes=args.num_classes,
         num_images=args.num_images,
         embedding_size=args.embedding_size,

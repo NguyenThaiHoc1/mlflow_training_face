@@ -33,11 +33,11 @@ class ParserRecord(object):
 
         labels = tf.cast(features_record['image/id_name'], tf.int32)
 
-        if self.is_crop:
-            """
-                We can build data preprocess in here 
-            """
-            np_array = process_image.transform_images_setup(is_crop=self.is_crop)(np_array)
+        # if self.is_crop:
+        #     """
+        #         We can build data preprocess in here
+        #     """
+        np_array = process_image.transform_images_setup(is_crop=self.is_crop)(np_array)
 
         """
             We can build reprocess labels in here 
@@ -46,7 +46,7 @@ class ParserRecord(object):
             labels = tf.one_hot(labels, depth=self.num_classes)
 
         if self.reprocess:
-            image_path = tf.cast(features_record['image/img_path'], tf.string)
-            return np_array, image_path
+            filename = tf.cast(features_record['image/filename'], tf.string)
+            return np_array, filename
 
         return np_array, labels

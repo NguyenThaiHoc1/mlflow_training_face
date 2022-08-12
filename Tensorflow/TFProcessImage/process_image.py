@@ -12,7 +12,15 @@ def transform_images_setup(is_crop=False):
         x_train = x_train / 255
         return x_train
 
-    return transform_images
+    def transform_images_basic(x_train):
+        x_train = tf.image.resize(x_train, (160, 160))
+        x_train = x_train / 255
+        return x_train
+
+    if is_crop:
+        return transform_images
+    else:
+        return transform_images_basic
 
 
 # process labels

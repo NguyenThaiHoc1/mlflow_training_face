@@ -4,10 +4,10 @@ from Network.head.archead import ArcHead
 
 
 class MyModel(tf.keras.Model):
-    def __init__(self, type_backbone, header, input_shape):
+    def __init__(self, type_backbone, header, input_shape, embedding_size):
         super(MyModel, self).__init__()
         self.backbone = backbone_model(type_model=type_backbone,
-                                       input_shape=input_shape)
+                                       input_shape=input_shape, embedding_size=embedding_size)
         self.header = header
 
     def call(self, inputs, training=False):
