@@ -216,15 +216,14 @@ def get_paths(dict_root, pairs):
             path1 = pair[2] + '_' + '%04d' % int(pair[3]), pair[2]
             issame = False
 
-        tmp_path_0 = dict_root[path0[1]][path0[0]]
-        tmp_path_1 = dict_root[path1[1]][path1[0]]
-
         if path1[1] in dict_root and path1[0] in dict_root[path1[1]] and \
                 path0[1] in dict_root and path0[0] in dict_root[path0[1]]:
-            path_list += (tmp_path_0, tmp_path_1)  # np.array which contains to save image
+            path_list += (
+                dict_root[path0[1]][path0[0]],
+                dict_root[path1[1]][path1[0]]
+            )  # np.array which contains to save image
             issame_list.append(issame)
         else:
-            print(path0[0], "\n", path1[0])
             nrof_skipped_pairs += 1
 
     if nrof_skipped_pairs > 0:
