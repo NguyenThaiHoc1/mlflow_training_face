@@ -246,8 +246,7 @@ def evalute(embedding_size, step, model, carray, issame):
     embeddings = np.zeros([len(carray), embedding_size])
 
     for idx in tqdm(range(0, len(carray), step)):
-        batch = carray[idx:idx + step]
-
+        batch = np.stack(carray[idx:idx + step])
         embeding_batch = model(batch, training=False)
         embeddings[idx:idx + step] = l2_norm(embeding_batch)
 
