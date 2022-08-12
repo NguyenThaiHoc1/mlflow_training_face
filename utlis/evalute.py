@@ -201,25 +201,30 @@ def add_extension(path):
         raise RuntimeError('No file "%s" with extension png or jpg.' % path)
 
 
-def get_paths(lfw_dir, pairs):
+def get_paths(dict_root, pairs):
     nrof_skipped_pairs = 0
     path_list = []
     issame_list = []
     for pair in pairs:
         if len(pair) == 3:
-            path0 = add_extension(os.path.join(lfw_dir, pair[0], pair[0] + '_' + '%04d' % int(pair[1])))
-            path1 = add_extension(os.path.join(lfw_dir, pair[0], pair[0] + '_' + '%04d' % int(pair[2])))
+            path0 = pair[0] + '_' + '%04d' % int(pair[1]), pair[0]
+            path1 = pair[0] + '_' + '%04d' % int(pair[2]), pair[0]
             issame = True
 
         elif len(pair) == 4:
-            path0 = add_extension(os.path.join(lfw_dir, pair[0], pair[0] + '_' + '%04d' % int(pair[1])))
-            path1 = add_extension(os.path.join(lfw_dir, pair[2], pair[2] + '_' + '%04d' % int(pair[3])))
+            path0 = pair[0] + '_' + '%04d' % int(pair[1]), pair[0]
+            path1 = pair[2] + '_' + '%04d' % int(pair[3]), pair[2]
             issame = False
 
-        if os.path.exists(path0) and os.path.exists(path1):  # Only add the pair if both paths exist
-            path_list += (path0, path1)
+        tmp_path_0 = dict_root[path0[1]][path0[0]]
+        tmp_path_1 = dict_root[path1[1]][path1[0]]
+
+        if path1[1] in dict_root and path1[0] in dict_root[path1[1]] and \
+                path0[1] in dict_root and path0[0] in dict_root[path0[1]]:
+            path_list += (tmp_path_0, tmp_path_1)  # np.array which contains to save image
             issame_list.append(issame)
         else:
+            print(path0[0], "\n", path1[0])
             nrof_skipped_pairs += 1
 
     if nrof_skipped_pairs > 0:
@@ -238,17 +243,16 @@ def calculator_distance(embeddings):
     return dist
 
 
-def evalute(embedding_size, batch_size, model, carray, issame):
+def evalute(embedding_size, step, model, carray, issame):
     embeddings = np.zeros([len(carray), embedding_size])
 
-    for idx in tqdm(range(0, len(carray), batch_size)):
-        batch = carray[idx:idx + batch_size]
+    for idx in tqdm(range(0, len(carray), step)):
+        batch = carray[idx:idx + step]
 
         embeding_batch = model(batch, training=False)
-        embeddings[idx:idx + batch_size] = l2_norm(embeding_batch)
+        embeddings[idx:idx + step] = l2_norm(embeding_batch)
 
     distance_batches = calculator_distance(embeddings)
-
     distances = np.array(distance_batches)
     labels = np.array(issame)
     return distances, labels

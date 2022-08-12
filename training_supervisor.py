@@ -231,6 +231,8 @@ class TrainingSupervisor(object):
                 if int(self.schedule['step']) % self.save_freq == 0:
                     self._log_to_tensorboard()
                     self._checkpoint()
+                    # mình sẽ gọi evaluate ở đây.
+
 
             # Overview metrics epochs
             self._log_to_tensorboard_epoch()
