@@ -10,11 +10,11 @@ from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 from tensorflow.keras.optimizers import Adam
 
 
-# def set_env_vars():
-#     os.environ["MLFLOW_TRACKING_URI"] = "http://34.127.32.14:5000"
-#     os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://34.127.32.14:9000"
-#     os.environ["AWS_ACCESS_KEY_ID"] = "admin"
-#     os.environ["AWS_SECRET_ACCESS_KEY"] = "hocmap123"
+def set_env_vars():
+    os.environ["MLFLOW_TRACKING_URI"] = "http://34.127.32.14:5000"
+    os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://34.127.32.14:9000"
+    os.environ["AWS_ACCESS_KEY_ID"] = "admin"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "hocmap123"
 
 def list_callbacks(sub_name, save_steps, batch_size):
     mc_callback = ModelCheckpoint(

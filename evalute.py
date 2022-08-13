@@ -1,5 +1,8 @@
 from collections import defaultdict
 import os
+
+import mlflow
+
 from Tensorflow.TFRecord.tfrecord import TFRecordData
 from utlis.evalute import *
 from functools import partial
@@ -46,6 +49,21 @@ class EvaluteObjects(object):
 
         self.list_arrays, self.actual_issame = get_paths(dict_person, self.pairs)
         del dict_person
+
+    def mlflow_logs(self, dict_metrics):
+        mlflow.log_metric('mean_accuracy', dict_metrics['mean_accuracy'])
+        mlflow.log_metric('std_accuracy', dict_metrics['std_accuracy'])
+        mlflow.log_metric('mean_precision', dict_metrics['mean_precision'])
+        mlflow.log_metric('std_precision', dict_metrics['std_precision'])
+        mlflow.log_metric('mean_recall', dict_metrics['mean_recall'])
+        mlflow.log_metric('std_recall', dict_metrics['std_recall'])
+        mlflow.log_metric('mean_best_distances', dict_metrics['mean_best_distances'])
+        mlflow.log_metric('std_best_distances', dict_metrics['std_best_distances'])
+        mlflow.log_metric('mean_tar', dict_metrics['mean_tar'])
+        mlflow.log_metric('std_tar', dict_metrics['std_tar'])
+        mlflow.log_metric('mean_far', dict_metrics['mean_far'])
+        mlflow.log_metric('roc_auc', dict_metrics['roc_auc'])
+        mlflow.log_artifact("plot_all_metrics.png", artifact_path='evaluate-plot')
 
     def activate(self, model, embedding_size, plot=True):
         assert self.list_arrays is not None or self.actual_issame is not None, "Please check init state."

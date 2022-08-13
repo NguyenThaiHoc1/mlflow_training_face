@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 import os.path
 
+import mlflow
 import tensorflow as tf
 from tqdm import tqdm
 
@@ -233,6 +234,9 @@ class TrainingSupervisor(object):
                     self._checkpoint()
                     # mình sẽ gọi evaluate ở đây.
 
+            # Mlflow logging
+            self._mlflow_log()
+
             # Save the last checkpoint.
             self._log_to_tensorboard()
             self._checkpoint()
@@ -254,3 +258,18 @@ class TrainingSupervisor(object):
 
     def override_schedule(self):
         raise NotImplementedError
+
+    def _mlflow_log(self):
+        # loss params
+        # nothing to see here
+
+        # metrics
+        mlflow.log_metric('loss', self.metrics['loss'].result())
+        mlflow.log_metric('accuracy', self.metrics['categorical_accuracy'].result())
+
+    def mlflow_artifact(self, model):
+        # write model as json file
+        with open("model.json", "w") as f:
+            f.write(model.to_json())
+        mlflow.log_artifact("model.json", artifact_path='tf-model-summary')
+        mlflow.tensorflow.log_model(model, 'tf-model-backbone')

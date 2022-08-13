@@ -68,3 +68,10 @@ def l2_norm(embedings, axis=1):
     norm = np.linalg.norm(embedings, axis=axis, keepdims=True)
     output = embedings / norm
     return output
+
+
+def set_env_vars():
+    os.environ["MLFLOW_TRACKING_URI"] = "http://34.127.32.14:5000"
+    os.environ["MLFLOW_S3_ENDPOINT_URL"] = "http://34.127.32.14:9000"
+    os.environ["AWS_ACCESS_KEY_ID"] = "admin"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "hocmap123"
