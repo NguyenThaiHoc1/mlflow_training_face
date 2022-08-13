@@ -66,20 +66,21 @@ class EvaluteObjects(object):
             'roc_auc': metrics['accuracy'],
         }
 
-        text_metrics = "Accuracy on Fujinet: {:.4f}+-{:.4f}\nPrecision {:.4f}+-{:.4f}\nRecall {:.4f}+-{:.4f}" \
-                       "\nROC Area Under Curve: {:.4f}\nBest distance threshold: {:.2f}+-{:.2f}" \
+        print(metrics_dict)
+
+        text_metrics = "Accuracy on dataset: {:.4f}+-{:.4f}\nPrecision {:.4f}+-{:.4f}\nRecall {:.4f}+-{:.4f}" \
+                       "\nBest distance threshold: {:.2f}+-{:.2f}" \
                        "\nTAR: {:.4f}+-{:.4f} @ FAR: {:.4f}".format(metrics_dict['mean_accuracy'],
                                                                     metrics_dict['std_accuracy'],
                                                                     metrics_dict['mean_precision'],
                                                                     metrics_dict['std_precision'],
                                                                     metrics_dict['mean_recall'],
                                                                     metrics_dict['std_recall'],
-                                                                    metrics_dict['roc_auc'],
                                                                     metrics_dict['mean_best_distances'],
                                                                     metrics_dict['std_best_distances'],
                                                                     metrics_dict['mean_tar'],
                                                                     metrics_dict['std_tar'],
-                                                                    metrics_dict['mean_far'])
+                                                                    metrics_dict['mean_far'])  # roc auc bi sai
 
         if plot:
             title = 'All metrics'
@@ -111,4 +112,4 @@ if __name__ == '__main__':
     model = None
 
     # activate
-    eval_class.activate(model, embedding_size=512)
+    # eval_class.activate(model, embedding_size=512)
