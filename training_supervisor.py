@@ -267,9 +267,13 @@ class TrainingSupervisor(object):
         mlflow.log_metric('loss', self.metrics['loss'].result())
         mlflow.log_metric('accuracy', self.metrics['categorical_accuracy'].result())
 
-    def mlflow_artifact(self, model):
+    def mlflow_artifact(self, model, tensorboard_dir, export_dir):
         # write model as json file
         with open("model.json", "w") as f:
             f.write(model.to_json())
         mlflow.log_artifact("model.json", artifact_path='tf-model-summary')
-        mlflow.tensorflow.log_model(model, 'tf-model-backbone')
+        mlflow.log_artifacts(tensorboard_dir, artifact_path='tf-tensorboard')
+        mlflow.tensorflow.log_model(tf_saved_model_dir=export_dir,
+                                    tf_signature_def_key="serving_default",
+                                    tf_meta_graph_tags="serve",
+                                    artifact_path='tf-backbone')

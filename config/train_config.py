@@ -6,7 +6,7 @@ tfrecord_file = projects_path / 'Dataset' / 'raw_tfrecords' / 'lfw.tfrecords'
 
 tfrecord_file_eval = projects_path / 'Dataset' / 'raw_tfrecords' / 'lfw.tfrecords'
 
-file_pair_eval = projects_path / 'Dataset' / 'raw_tfrecords' / 'lfw.txt'
+file_pair_eval = projects_path / 'Dataset' / 'raw_tfrecords' / 'lfw_pairs.txt'
 
 num_classes = 5749
 

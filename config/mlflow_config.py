@@ -8,4 +8,6 @@ mlflow_autolog = True
 
 tensorflow_autolog = True
 
+mlflow_custom_log = True
+
 user_name = 'hoc-nt'

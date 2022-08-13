@@ -23,6 +23,7 @@ def parser_mlflow():
         'model_name': mlflow_config.model_name,
         'mlflow_autolog': mlflow_config.mlflow_autolog,
         'tensorflow_autolog': mlflow_config.tensorflow_autolog,
+        'mlflow_custom_log': mlflow_config.mlflow_custom_log,
         'user_name': mlflow_config.user_name,
     })
 
@@ -84,7 +85,9 @@ def train(run, model_name, mlflow_custom_log):
     supervisor.restore(weights_only=False, from_scout=True)
     supervisor.train(epochs=epochs, steps_per_epoch=num_images // batch_size)
     supervisor.export(model=model.backbone, export_dir=export_dir)
-    supervisor.mlflow_artifact(model=model.backbone)
+    supervisor.mlflow_artifact(model=model.backbone,
+                               tensorboard_dir=training_dir,
+                               export_dir=export_dir)
 
     # evaluate ...
     eval_class = EvaluteObjects(tfrecord_file=tfrecord_file_eval,
@@ -102,8 +105,6 @@ def mlflow_run():
 
     args_mlflow['model_name'] = None if not args_mlflow['model_name'] or args_mlflow['model_name'] == "None" else \
         args_mlflow['model_name']
-    if not args_mlflow['mlflow_autolog'] and not args_mlflow['tensorflow_autolog']:
-        mlflow_custom_log = True
 
     if args_mlflow['tensorflow_autolog']:
         mlflow.tensorflow.autolog()
@@ -123,10 +124,10 @@ def mlflow_run():
         mlflow.set_tag("version.tensorflow", tf.__version__)
         mlflow.set_tag("mlflow_autolog", args_mlflow['mlflow_autolog'])
         mlflow.set_tag("tensorflow_autolog", args_mlflow['tensorflow_autolog'])
-        mlflow.set_tag("mlflow_custom_log", mlflow_custom_log)
+        mlflow.set_tag("mlflow_custom_log", args_mlflow['mlflow_custom_log'])
         mlflow.set_tag("Type of model", args_mlflow['model_name'])
         mlflow.set_tag("Developer", args_mlflow['user_name'])
-        train(run, args_mlflow['model_name'], mlflow_custom_log)
+        train(run, args_mlflow['model_name'], args_mlflow['mlflow_custom_log'])
 
 
 if __name__ == '__main__':
