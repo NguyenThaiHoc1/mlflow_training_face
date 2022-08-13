@@ -65,19 +65,18 @@ class EvaluteObjects(object):
             'mean_tar': np.mean(metrics['tar']),
             'std_tar': np.std(metrics['tar']),
             'mean_far': np.mean(metrics['far']),
-            'roc_auc': metrics['accuracy'],
+            'roc_auc': metrics['roc_auc'],
         }
 
-        print(metrics_dict)
-
         text_metrics = "Accuracy on dataset: {:.4f}+-{:.4f}\nPrecision {:.4f}+-{:.4f}\nRecall {:.4f}+-{:.4f}" \
-                       "\nBest distance threshold: {:.2f}+-{:.2f}" \
+                       "\nROC Area Under Curve: {:.4f}\nBest distance threshold: {:.2f}+-{:.2f}" \
                        "\nTAR: {:.4f}+-{:.4f} @ FAR: {:.4f}".format(metrics_dict['mean_accuracy'],
                                                                     metrics_dict['std_accuracy'],
                                                                     metrics_dict['mean_precision'],
                                                                     metrics_dict['std_precision'],
                                                                     metrics_dict['mean_recall'],
                                                                     metrics_dict['std_recall'],
+                                                                    metrics_dict['roc_auc'],
                                                                     metrics_dict['mean_best_distances'],
                                                                     metrics_dict['std_best_distances'],
                                                                     metrics_dict['mean_tar'],
@@ -103,15 +102,15 @@ class EvaluteObjects(object):
         return metrics_dict
 
 
-# if __name__ == '__main__':
-#     from collections import defaultdict
-#     import os
-#
-#     eval_class = EvaluteObjects(tfrecord_file=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw.tfrecords',
-#                                 file_pairs=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\pairs\lfw_pairs.txt')
-#
-#     # loading model checkpoint
-#     model = None
-#
-#     # activate
-#     # eval_class.activate(model, embedding_size=512)
+if __name__ == '__main__':
+    import tensorflow as tf
+
+    eval_class = EvaluteObjects(tfrecord_file=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw.tfrecords',
+                                file_pairs=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\pairs\lfw_pairs.txt')
+
+    # loading model checkpoint
+    model = tf.keras.models.load_model('Model')
+    model.summary()
+
+    # activate
+    eval_class.activate(model, embedding_size=512)
