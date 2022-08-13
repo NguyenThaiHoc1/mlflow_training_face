@@ -233,10 +233,6 @@ class TrainingSupervisor(object):
                     self._checkpoint()
                     # mình sẽ gọi evaluate ở đây.
 
-
-            # Overview metrics epochs
-            self._log_to_tensorboard_epoch()
-
             # Save the last checkpoint.
             self._log_to_tensorboard()
             self._checkpoint()
