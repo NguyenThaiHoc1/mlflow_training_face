@@ -1,3 +1,5 @@
+from collections import defaultdict
+import os
 from Tensorflow.TFRecord.tfrecord import TFRecordData
 from utlis.evalute import *
 from functools import partial
@@ -101,15 +103,15 @@ class EvaluteObjects(object):
         return metrics_dict
 
 
-if __name__ == '__main__':
-    from collections import defaultdict
-    import os
-
-    eval_class = EvaluteObjects(tfrecord_file=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw.tfrecords',
-                                file_pairs=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\pairs\lfw_pairs.txt')
-
-    # loading model checkpoint
-    model = None
-
-    # activate
-    # eval_class.activate(model, embedding_size=512)
+# if __name__ == '__main__':
+#     from collections import defaultdict
+#     import os
+#
+#     eval_class = EvaluteObjects(tfrecord_file=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\raw_tfrecords\lfw.tfrecords',
+#                                 file_pairs=r'D:\hoc-nt\MFCosFace_Mlflow\Dataset\pairs\lfw_pairs.txt')
+#
+#     # loading model checkpoint
+#     model = None
+#
+#     # activate
+#     # eval_class.activate(model, embedding_size=512)
