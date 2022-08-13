@@ -100,7 +100,7 @@ def train(run, model_name, mlflow_custom_log):
 def mlflow_run():
     args_mlflow = parser_mlflow()
     print("Options-Mlflow:")
-    for k, v in args_mlflow:
+    for k, v in args_mlflow.items():
         print(f"  {k}: {v}")
 
     args_mlflow['model_name'] = None if not args_mlflow['model_name'] or args_mlflow['model_name'] == "None" else \
