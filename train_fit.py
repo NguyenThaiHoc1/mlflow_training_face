@@ -16,6 +16,7 @@ def set_env_vars():
     os.environ["AWS_ACCESS_KEY_ID"] = "admin"
     os.environ["AWS_SECRET_ACCESS_KEY"] = "hocmap123"
 
+
 def list_callbacks(sub_name, save_steps, batch_size):
     mc_callback = ModelCheckpoint(
         'checkpoints/' + str(sub_name) + '/e_{epoch}_b_{batch}.ckpt',
